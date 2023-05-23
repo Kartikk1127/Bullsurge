@@ -3,11 +3,16 @@ package com.Kartikey.bullsurge.backend.controller;
 import com.Kartikey.bullsurge.backend.dto.AuthRequest;
 import com.Kartikey.bullsurge.backend.model.User;
 import com.Kartikey.bullsurge.backend.repository.UserRepository;
+import com.Kartikey.bullsurge.backend.service.JwtService;
 import com.Kartikey.bullsurge.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +31,12 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
@@ -84,8 +95,14 @@ public class UserController {
 
     @PostMapping("/authenticate")
     public String authenticateAndGetToken(@RequestBody AuthRequest authRequest){
-
-
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+        if(authentication.isAuthenticated())
+        {
+            return  jwtService.generateToken(authRequest.getUsername());
+        }
+        else {
+            throw new UsernameNotFoundException("invalid username!");
+        }
     }
 
 
