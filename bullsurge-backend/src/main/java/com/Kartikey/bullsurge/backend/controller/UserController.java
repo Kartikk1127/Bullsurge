@@ -1,10 +1,14 @@
 package com.Kartikey.bullsurge.backend.controller;
 
+import com.Kartikey.bullsurge.backend.dto.AuthRequest;
 import com.Kartikey.bullsurge.backend.model.User;
 import com.Kartikey.bullsurge.backend.repository.UserRepository;
+import com.Kartikey.bullsurge.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -17,16 +21,33 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(){
         return new ArrayList<>(userRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<User> getUserById(@PathVariable String id)
+    {
+        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User not found with id " + id));
+        return ResponseEntity.ok(user);
+    }
+
     @PostMapping("/add")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> addIncomeAndExpense(@RequestBody User user)
     {
-        User savedUser = userRepository.save(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userService.addUser(user);
+        return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
 
@@ -40,6 +61,7 @@ public class UserController {
         }
             user.setIncome(updatedUser.getIncome());
             user.setExpense(updatedUser.getExpense());
+            user.setSavings(updatedUser.getIncome()-updatedUser.getExpense());
         System.out.println("income and expense set"); //user is updated now
             User savedUser =  userRepository.save(user); //updated user saved in database
         System.out.println("user saved in db");
@@ -55,8 +77,15 @@ public class UserController {
 
         tempUser.setIncome(null);
         tempUser.setExpense(null);
+        tempUser.setSavings(null);
         User savedUser = userRepository.save(tempUser);
         return ResponseEntity.ok(savedUser);
+    }
+
+    @PostMapping("/authenticate")
+    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest){
+
+
     }
 
 

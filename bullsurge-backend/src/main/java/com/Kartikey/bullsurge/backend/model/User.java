@@ -28,8 +28,7 @@ public class User {
     private Integer expense;
     private Integer savings;
     private String password;
+    private String role;
 
-    @Field("role")
-    private Role role;
 
 }
