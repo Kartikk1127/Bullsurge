@@ -14,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,9 +39,18 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+//    @GetMapping("/hello")
+//    public String hello(Model theModel){
+//        List<User> user = userRepository.findAll();
+//        theModel.addAttribute("users",user);
+//
+//        return "/users/list-users";
+//    }
+
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(){
+        List<User> user = userRepository.findAll();
         return new ArrayList<>(userRepository.findAll());
     }
 

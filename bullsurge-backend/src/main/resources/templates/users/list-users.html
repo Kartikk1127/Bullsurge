@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <title>Finance Web Tracker</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h3>Finance Web Tracker</h3>
+    <hr>
+
+    <div>
+        User: <span sec:authentication="name"></span>
+        <br>
+        Role(s): <span sec:authentication="principal.authorities"></span>
+        <br><br>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Name</th>
+            <th>Income</th>
+            <th>Expense</th>
+            <th>Savings</th>
+
+            <div sec:authorize="hasRole('ROLE_ADMIN')">
+                <th>Action</th>
+            </div>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="tempUser : ${users}">
+
+            <td th:text="${tempUser.name}" />
+            <td th:text="${tempUser.income}" />
+            <td th:text="${tempUser.expense}" />
+            <td th:text="${tempUser.savings}" />
+
+
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
